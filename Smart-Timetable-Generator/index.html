@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Timetable Generator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>📅 Smart Timetable Generator</h1>
+
+        <p class="subtitle">
+            Generate a weekly timetable automatically
+        </p>
+
+
+        <!-- Subject Input Section -->
+
+        <div class="input-section">
+
+            <h2>Add Subject</h2>
+
+            <label for="subjectName">Subject Name</label>
+
+            <input type="text" id="subjectName" placeholder="Enter Subject Name">
+
+            <label for="facultyName">Faculty Name</label>
+
+            <input type="text" id="facultyName" placeholder="Enter Faculty Name">
+
+            <label for="periods">Periods per week</label>
+
+            <input type="number" id="periods" placeholder="Enter number of periods per week">
+
+            <button onclick="addSubject()">Add Subject</button>
+
+        </div>
+
+
+        <!-- Subject List -->
+
+        <div class="subject-section">
+
+            <h2>Subjects</h2>
+
+            <ul id="subjectList"></ul>
+
+        </div>
+
+
+        <!-- Timetable Settings -->
+
+        <div class="settings">
+
+            <h2>Timetable Settings</h2>
+
+            <label for="days">Working Days</label>
+
+            <select id="days">
+
+                <option value="5">Monday - Friday</option>
+                <option value="6">Monday - Saturday</option>
+
+            </select>
+
+
+            <label for="periodsPerDay">Periods Per Day</label>
+
+            <select id="periodsPerDay">
+
+                <option value="5">5 Periods</option>
+                <option value="6" selected>6 Periods</option>
+                <option value="7">7 Periods</option>
+
+            </select>
+
+        </div>
+
+
+        <!-- Generate Button -->
+
+        <button
+            class="generate-btn"
+            onclick="generateTimetable()"
+        >
+            Generate Timetable
+        </button>
+
+
+        <!-- Result -->
+
+        <div class="result">
+
+            <h2>Generated Timetable</h2>
+
+            <div id="timetable"></div>
+
+        </div>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

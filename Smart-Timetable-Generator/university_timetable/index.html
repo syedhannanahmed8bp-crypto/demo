@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>University Timetable Generator</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">UT</span>
+      <div>
+        <div class="brand-title">Timetable Generator</div>
+        <div class="brand-sub">University scheduling console</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+      <button class="nav-btn" data-tab="setup">University Setup</button>
+      <button class="nav-btn" data-tab="subjects">Subjects</button>
+      <button class="nav-btn" data-tab="generate">Generate Timetable</button>
+      <button class="nav-btn" data-tab="sectionView">Section Timetables</button>
+      <button class="nav-btn" data-tab="facultyView">Faculty Timetable</button>
+      <button class="nav-btn" data-tab="roomView">Room Timetable</button>
+      <button class="nav-btn" data-tab="settings">Constraints</button>
+    </nav>
+
+    <button class="danger-link" onclick="handleResetAllData()">Clear all data</button>
+  </aside>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="main">
+
+    <!-- ---------- DASHBOARD ---------- -->
+    <section id="tab-dashboard" class="tab-panel active">
+      <header class="panel-header">
+        <h1>Dashboard</h1>
+        <p>An overview of everything set up for this university.</p>
+      </header>
+
+      <div class="stat-grid" id="statGrid"></div>
+
+      <div class="card">
+        <h2>Generated timetables</h2>
+        <div id="dashboardTimetableList" class="simple-list"></div>
+      </div>
+    </section>
+
+    <!-- ---------- UNIVERSITY SETUP ---------- -->
+    <section id="tab-setup" class="tab-panel">
+      <header class="panel-header">
+        <h1>University Setup</h1>
+        <p>Add departments, sections, faculty, and rooms.</p>
+      </header>
+
+      <div class="grid-2">
+
+        <!-- Departments -->
+        <div class="card">
+          <h2>Departments</h2>
+          <div class="inline-form">
+            <input type="text" id="deptNameInput" placeholder="e.g. Information Science and Engineering" />
+            <button class="btn btn-primary" onclick="handleAddDepartment()">Add</button>
+          </div>
+          <ul class="record-list" id="deptList"></ul>
+        </div>
+
+        <!-- Sections -->
+        <div class="card">
+          <h2>Sections / Classes</h2>
+          <div class="inline-form-grid">
+            <input type="text" id="secDeptInput" placeholder="Department code, e.g. ISE" />
+            <input type="text" id="secSemInput" placeholder="Semester, e.g. 3" />
+            <input type="text" id="secLetterInput" placeholder="Section, e.g. A" />
+            <button class="btn btn-primary" onclick="handleAddSection()">Add Section</button>
+          </div>
+          <p class="hint">Use a short department code (ISE, CSE, ECE) — it's used to build the section ID.</p>
+          <ul class="record-list" id="sectionList"></ul>
+        </div>
+
+        <!-- Faculty -->
+        <div class="card">
+          <h2>Faculty</h2>
+          <div class="inline-form-grid">
+            <input type="text" id="facNameInput" placeholder="Faculty name, e.g. Dr. ABC" />
+            <select id="facDeptSelect"></select>
+            <button class="btn btn-primary" onclick="handleAddFaculty()">Add Faculty</button>
+          </div>
+          <ul class="record-list" id="facultyList"></ul>
+        </div>
+
+        <!-- Rooms -->
+        <div class="card">
+          <h2>Classrooms &amp; Labs</h2>
+          <div class="inline-form-grid">
+            <input type="text" id="roomNumberInput" placeholder="Room number, e.g. 204" />
+            <select id="roomTypeSelect">
+              <option value="classroom">Classroom</option>
+              <option value="lab">Lab</option>
+            </select>
+            <input type="number" id="roomCapacityInput" placeholder="Capacity" min="1" />
+            <button class="btn btn-primary" onclick="handleAddRoom()">Add Room</button>
+          </div>
+          <ul class="record-list" id="roomList"></ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ---------- SUBJECTS ---------- -->
+    <section id="tab-subjects" class="tab-panel">
+      <header class="panel-header">
+        <h1>Subjects</h1>
+        <p>Add subjects for a specific section, with faculty and room assignments.</p>
+      </header>
+
+      <div class="card">
+        <h2>Add a subject</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Section</label>
+            <select id="subjSectionSelect"></select>
+          </div>
+          <div class="form-group">
+            <label>Subject Code</label>
+            <input type="text" id="subjCodeInput" placeholder="e.g. 23ISE302" />
+          </div>
+          <div class="form-group">
+            <label>Subject Name</label>
+            <input type="text" id="subjNameInput" placeholder="e.g. Data Structures" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select id="subjTypeSelect" onchange="handleSubjectTypeChange()">
+              <option value="theory">Theory</option>
+              <option value="lab">Lab</option>
+              <option value="tutorial">Tutorial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Periods per week (total)</label>
+            <input type="number" id="subjPeriodsInput" min="1" placeholder="e.g. 4" />
+          </div>
+          <div class="form-group">
+            <label>Block duration (periods per session)</label>
+            <input type="number" id="subjDurationInput" min="1" value="1" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Faculty</label>
+            <select id="subjFacultySelect"></select>
+          </div>
+          <div class="form-group">
+            <label>Room / Lab</label>
+            <select id="subjRoomSelect"></select>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="btn btn-primary" onclick="handleAddSubject()">Add Subject</button>
+          <button class="btn btn-secondary" onclick="handleLoadSampleData()">Load Sample Data</button>
+        </div>
+
+        <div id="subjectStatus" class="status-message"></div>
+      </div>
+
+      <div class="card">
+        <h2>Subjects by section</h2>
+        <div class="form-group" style="max-width:320px;">
+          <label>Filter by section</label>
+          <select id="subjFilterSection" onchange="renderSubjectTable()"></select>
+        </div>
+        <div class="table-scroll-wrapper">
+          <table class="data-table" id="subjectTable">
+            <thead>
+              <tr>
+                <th>Code</th><th>Name</th><th>Type</th><th>Periods/wk</th>
+                <th>Block</th><th>Faculty</th><th>Room</th><th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- GENERATE ---------- -->
+    <section id="tab-generate" class="tab-panel">
+      <header class="panel-header">
+        <h1>Generate Timetable</h1>
+        <p>Select the sections to generate together, then run the scheduler.</p>
+      </header>
+
+      <div class="card">
+        <h2>Select sections</h2>
+        <div id="generateSectionChecklist" class="checklist"></div>
+
+        <div class="button-row">
+          <button class="btn btn-primary" onclick="handleGenerate()">Generate Timetable</button>
+          <button class="btn btn-secondary" onclick="handleRegenerate()">Regenerate</button>
+        </div>
+
+        <div id="generateStatus" class="status-message"></div>
+      </div>
+
+      <div class="card" id="generateResultsCard" style="display:none;">
+        <h2>Result preview</h2>
+        <div id="generateResults"></div>
+      </div>
+    </section>
+
+    <!-- ---------- SECTION TIMETABLES ---------- -->
+    <section id="tab-sectionView" class="tab-panel">
+      <header class="panel-header">
+        <h1>Section Timetables</h1>
+        <p>View the generated weekly timetable for any section.</p>
+      </header>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Select section</label>
+            <select id="sectionViewSelect" onchange="renderSectionTimetable()"></select>
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="btn btn-secondary" onclick="printCurrentView('sectionTimetableOutput')">Print</button>
+          <button class="btn btn-secondary" onclick="exportCSV('section')">Export CSV</button>
+          <button class="btn btn-danger" onclick="handleDeleteTimetable()">Delete this timetable</button>
+        </div>
+        <div id="sectionTimetableOutput" class="table-scroll-wrapper"></div>
+      </div>
+    </section>
+
+    <!-- ---------- FACULTY VIEW ---------- -->
+    <section id="tab-facultyView" class="tab-panel">
+      <header class="panel-header">
+        <h1>Faculty Timetable</h1>
+        <p>Check a faculty member's full weekly schedule across all sections.</p>
+      </header>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Select faculty</label>
+            <select id="facultyViewSelect" onchange="renderFacultyTimetable()"></select>
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="btn btn-secondary" onclick="printCurrentView('facultyTimetableOutput')">Print</button>
+        </div>
+        <div id="facultyTimetableOutput" class="table-scroll-wrapper"></div>
+      </div>
+    </section>
+
+    <!-- ---------- ROOM VIEW ---------- -->
+    <section id="tab-roomView" class="tab-panel">
+      <header class="panel-header">
+        <h1>Room Timetable</h1>
+        <p>Check a room or lab's full weekly occupancy.</p>
+      </header>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Select room</label>
+            <select id="roomViewSelect" onchange="renderRoomTimetable()"></select>
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="btn btn-secondary" onclick="printCurrentView('roomTimetableOutput')">Print</button>
+        </div>
+        <div id="roomTimetableOutput" class="table-scroll-wrapper"></div>
+      </div>
+    </section>
+
+    <!-- ---------- CONSTRAINTS / SETTINGS ---------- -->
+    <section id="tab-settings" class="tab-panel">
+      <header class="panel-header">
+        <h1>Constraints</h1>
+        <p>Configure working days, periods, and scheduling limits.</p>
+      </header>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Working Days</label>
+            <select id="settingWorkingDays">
+              <option value="5">5 Days</option>
+              <option value="6">6 Days</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Periods per day</label>
+            <input type="number" id="settingPeriodsPerDay" min="1" max="10" />
+          </div>
+          <div class="form-group">
+            <label>Start time</label>
+            <input type="time" id="settingStartTime" />
+          </div>
+          <div class="form-group">
+            <label>Period length (minutes)</label>
+            <input type="number" id="settingPeriodLength" min="15" step="5" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lunch break after period</label>
+            <input type="number" id="settingLunchAfter" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Max faculty classes per day</label>
+            <input type="number" id="settingMaxFaculty" min="1" />
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="btn btn-primary" onclick="handleSaveSettings()">Save Settings</button>
+        </div>
+        <div id="settingsStatus" class="status-message"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="scheduler.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
